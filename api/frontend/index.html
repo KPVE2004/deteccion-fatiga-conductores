@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Detección de Fatiga en Conductores</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    header h1 { font-size: 1.6rem; font-weight: 700; color: #58a6ff; }
+    header p  { font-size: 0.85rem; color: #8b949e; margin-top: 4px; }
+
+    /* Estado API */
+    #api-status {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #161b22; border: 1px solid #30363d;
+      border-radius: 20px; padding: 4px 14px;
+      font-size: 0.8rem; margin-bottom: 20px;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #6e7681; }
+    .dot.ok  { background: #3fb950; animation: pulse 2s infinite; }
+    .dot.err { background: #f85149; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+    /* Layout principal */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 20px;
+      width: 100%;
+      max-width: 1000px;
+    }
+
+    /* Panel cámara */
+    .camera-panel {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .camera-panel h2 { font-size: 1rem; margin-bottom: 14px; color: #58a6ff; }
+
+    #video-container {
+      position: relative;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #000;
+      aspect-ratio: 4/3;
+    }
+    #video { width: 100%; height: 100%; object-fit: cover; display: block; }
+    #canvas-overlay {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+    }
+
+    /* Alerta overlay */
+    #alerta-overlay {
+      position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+      padding: 6px 18px; border-radius: 20px;
+      font-size: 0.85rem; font-weight: 700;
+      background: rgba(0,0,0,0.6); border: 2px solid #3fb950;
+      color: #3fb950; white-space: nowrap;
+      transition: all 0.3s;
+    }
+
+    .camera-controls {
+      display: flex; gap: 10px; margin-top: 14px;
+    }
+    button {
+      flex: 1; padding: 10px; border: none; border-radius: 8px;
+      font-size: 0.9rem; font-weight: 600; cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    button:hover { opacity: 0.85; }
+    #btn-start  { background: #238636; color: #fff; }
+    #btn-stop   { background: #da3633; color: #fff; }
+    #btn-upload { background: #1f6feb; color: #fff; }
+    #input-file { display: none; }
+
+    /* Panel resultado */
+    .result-panel {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .result-panel h2 { font-size: 1rem; color: #58a6ff; }
+
+    /* Clase principal */
+    #clase-principal {
+      text-align: center;
+      padding: 20px;
+      border-radius: 10px;
+      background: #0d1117;
+      border: 2px solid #30363d;
+      transition: border-color 0.3s;
+    }
+    #clase-nombre {
+      font-size: 1.5rem; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 1px;
+      color: #3fb950;
+    }
+    #clase-confianza {
+      font-size: 2.2rem; font-weight: 700;
+      color: #e6edf3; margin: 4px 0;
+    }
+    #clase-mensaje {
+      font-size: 0.82rem; color: #8b949e;
+    }
+
+    /* Barras de probabilidad */
+    .barras-titulo { font-size: 0.8rem; color: #8b949e; font-weight: 600; }
+    .barra-item { margin-bottom: 10px; }
+    .barra-label {
+      display: flex; justify-content: space-between;
+      font-size: 0.78rem; margin-bottom: 3px;
+    }
+    .barra-label span:first-child { color: #c9d1d9; }
+    .barra-label span:last-child  { color: #8b949e; }
+    .barra-track {
+      background: #21262d; border-radius: 4px;
+      height: 10px; overflow: hidden;
+    }
+    .barra-fill {
+      height: 100%; border-radius: 4px;
+      background: #1f6feb;
+      transition: width 0.4s ease;
+    }
+
+    /* Tiempo */
+    #tiempo-inf {
+      text-align: center; font-size: 0.75rem; color: #6e7681;
+    }
+
+    /* Historial */
+    .historial-titulo { font-size: 0.8rem; color: #8b949e; font-weight: 600; }
+    #historial-lista {
+      display: flex; flex-wrap: wrap; gap: 6px;
+    }
+    .hist-item {
+      padding: 3px 10px; border-radius: 12px;
+      font-size: 0.72rem; font-weight: 600;
+      border: 1px solid;
+    }
+
+    /* Imagen de prueba */
+    #preview-img {
+      width: 100%; border-radius: 8px;
+      display: none; margin-top: 10px;
+    }
+
+    @media (max-width: 700px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🚗 Sistema de Detección de Fatiga</h1>
+  <p>MobileNetV2 · Transfer Learning · Accuracy 99.02% · 4 clases</p>
+</header>
+
+<div id="api-status">
+  <div class="dot" id="status-dot"></div>
+  <span id="status-text">Conectando a la API...</span>
+</div>
+
+<div class="main-grid">
+
+  <!-- Panel cámara -->
+  <div class="camera-panel">
+    <h2>📷 Cámara / Imagen de prueba</h2>
+    <div id="video-container">
+      <video id="video" autoplay muted playsinline></video>
+      <canvas id="canvas-overlay"></canvas>
+      <div id="alerta-overlay">Esperando...</div>
+    </div>
+    <img id="preview-img" alt="Imagen de prueba" />
+    <div class="camera-controls">
+      <button id="btn-start"  onclick="iniciarCamara()">▶ Iniciar cámara</button>
+      <button id="btn-stop"   onclick="detenerCamara()">■ Detener</button>
+      <button id="btn-upload" onclick="document.getElementById('input-file').click()">
+        ↑ Subir imagen
+      </button>
+      <input type="file" id="input-file" accept="image/*" onchange="subirImagen(event)" />
+    </div>
+  </div>
+
+  <!-- Panel resultado -->
+  <div class="result-panel">
+    <h2>📊 Resultado</h2>
+
+    <div id="clase-principal">
+      <div id="clase-nombre">—</div>
+      <div id="clase-confianza">—</div>
+      <div id="clase-mensaje">Inicia la cámara o sube una imagen</div>
+    </div>
+
+    <div>
+      <div class="barras-titulo">Distribución de probabilidades</div>
+      <div id="barras-container" style="margin-top:10px">
+        <!-- generadas por JS -->
+      </div>
+    </div>
+
+    <div id="tiempo-inf">—</div>
+
+    <div>
+      <div class="historial-titulo">Historial reciente</div>
+      <div id="historial-lista" style="margin-top:8px"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const API = 'http://localhost:8000';
+  const CLASES = ['ojo_abierto', 'ojo_cerrado', 'bostezo', 'no_bostezo'];
+  const COLORES = {
+    ojo_abierto: '#3fb950',
+    ojo_cerrado: '#f85149',
+    bostezo:     '#e3b341',
+    no_bostezo:  '#3fb950'
+  };
+
+  let video        = document.getElementById('video');
+  let stream       = null;
+  let intervaloInf = null;
+  let historial    = [];
+
+  // ── Verificación de API ──────────────────────────────────────────────────
+  async function verificarAPI() {
+    try {
+      const r = await fetch(`${API}/`);
+      const d = await r.json();
+      document.getElementById('status-dot').className  = 'dot ok';
+      document.getElementById('status-text').textContent =
+        `API activa · ${d.modelo} · accuracy ${(d.test_accuracy * 100).toFixed(2)}%`;
+    } catch {
+      document.getElementById('status-dot').className  = 'dot err';
+      document.getElementById('status-text').textContent = 'API no disponible — ¿está corriendo Docker?';
+    }
+  }
+
+  // ── Iniciar cámara ───────────────────────────────────────────────────────
+  async function iniciarCamara() {
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user', width: 640, height: 480 }
+      });
+      video.srcObject = stream;
+      document.getElementById('preview-img').style.display = 'none';
+      video.style.display = 'block';
+      // Predicción cada 800ms
+      intervaloInf = setInterval(predecirDesdeVideo, 800);
+    } catch (e) {
+      alert('No se pudo acceder a la cámara: ' + e.message);
+    }
+  }
+
+  function detenerCamara() {
+    if (stream) {
+      stream.getTracks().forEach(t => t.stop());
+      stream = null;
+    }
+    if (intervaloInf) {
+      clearInterval(intervaloInf);
+      intervaloInf = null;
+    }
+    video.srcObject = null;
+    document.getElementById('alerta-overlay').textContent = 'Cámara detenida';
+  }
+
+  // ── Captura frame del video ───────────────────────────────────────────────
+  async function predecirDesdeVideo() {
+    if (!stream) return;
+    const canvas = document.createElement('canvas');
+    canvas.width  = video.videoWidth  || 224;
+    canvas.height = video.videoHeight || 224;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    canvas.toBlob(async blob => {
+      if (blob) await enviarImagen(blob);
+    }, 'image/jpeg', 0.85);
+  }
+
+  // ── Subir imagen desde archivo ────────────────────────────────────────────
+  async function subirImagen(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    detenerCamara();
+    const url = URL.createObjectURL(file);
+    const preview = document.getElementById('preview-img');
+    preview.src = url;
+    preview.style.display = 'block';
+    video.style.display = 'none';
+    await enviarImagen(file);
+  }
+
+  // ── Enviar imagen a la API ────────────────────────────────────────────────
+  async function enviarImagen(blob) {
+    try {
+      const form = new FormData();
+      form.append('file', blob, 'frame.jpg');
+
+      const r = await fetch(`${API}/predict`, { method: 'POST', body: form });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const d = await r.json();
+      actualizarUI(d);
+    } catch (e) {
+      document.getElementById('alerta-overlay').textContent = '⚠️ Error de conexión';
+    }
+  }
+
+  // ── Actualizar UI con resultado ───────────────────────────────────────────
+  function actualizarUI(d) {
+    const color = COLORES[d.clase] || '#8b949e';
+
+    // Clase y confianza
+    document.getElementById('clase-nombre').textContent    = d.clase.replace('_', ' ');
+    document.getElementById('clase-nombre').style.color    = color;
+    document.getElementById('clase-confianza').textContent = (d.probabilidad * 100).toFixed(1) + '%';
+    document.getElementById('clase-mensaje').textContent   = d.mensaje_alerta;
+
+    // Borde panel
+    document.getElementById('clase-principal').style.borderColor = color;
+
+    // Overlay video
+    const overlay = document.getElementById('alerta-overlay');
+    overlay.textContent   = d.nivel_alerta + ' — ' + d.clase.replace('_', ' ');
+    overlay.style.borderColor = color;
+    overlay.style.color       = color;
+
+    // Barras
+    const cont = document.getElementById('barras-container');
+    cont.innerHTML = '';
+    CLASES.forEach(clase => {
+      const prob = d.todas_las_clases[clase] || 0;
+      const pct  = (prob * 100).toFixed(1);
+      const c    = COLORES[clase];
+      const activa = clase === d.clase ? 'font-weight:700' : '';
+      cont.innerHTML += `
+        <div class="barra-item">
+          <div class="barra-label">
+            <span style="${activa}">${clase.replace('_', ' ')}</span>
+            <span>${pct}%</span>
+          </div>
+          <div class="barra-track">
+            <div class="barra-fill" style="width:${pct}%;background:${c}"></div>
+          </div>
+        </div>`;
+    });
+
+    // Tiempo
+    document.getElementById('tiempo-inf').textContent = `⚡ ${d.tiempo_inferencia_ms.toFixed(1)}ms · ${d.modo_preprocesamiento} · ${d.cara_detectada ? "cara ✓" : "sin cara"}`;
+      `⚡ Inferencia: ${d.tiempo_inferencia_ms.toFixed(1)} ms`;
+
+    // Historial
+    historial.unshift(d.clase);
+    if (historial.length > 12) historial.pop();
+    const lista = document.getElementById('historial-lista');
+    lista.innerHTML = historial.map(c => {
+      const co = COLORES[c];
+      return `<span class="hist-item" style="color:${co};border-color:${co}">
+                ${c.replace('_', ' ')}
+              </span>`;
+    }).join('');
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  verificarAPI();
+  setInterval(verificarAPI, 30000);
+</script>
+</body>
+</html>

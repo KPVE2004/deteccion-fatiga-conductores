@@ -1,0 +1,24 @@
+{
+  "clases": [
+    "ojo_abierto",
+    "ojo_cerrado",
+    "bostezo",
+    "no_bostezo"
+  ],
+  "clase_a_idx": {
+    "ojo_abierto": 0,
+    "ojo_cerrado": 1,
+    "bostezo": 2,
+    "no_bostezo": 3
+  },
+  "target_size": [
+    224,
+    224
+  ],
+  "arquitectura": "MobileNetV2 + Transfer Learning",
+  "val_accuracy": 0.9907711148262024,
+  "test_accuracy": 0.9901639223098755,
+  "fecha": "2026-05",
+  "umbral_ear_fatiga": 0.25,
+  "umbral_mar_bostezo": 0.6
+}
