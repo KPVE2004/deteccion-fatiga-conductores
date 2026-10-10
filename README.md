@@ -284,15 +284,34 @@ El campo `modo_preprocesamiento` en la respuesta indica cuál ruta se tomó.
 
 ---
 
-## Mi rol
+## Roles del equipo
 
-Proyecto desarrollado en equipo. Mis aportes principales:
+Proyecto desarrollado en equipo por tres integrantes.
 
+**Ángel de Jesús Canela Figueroa**
 - Implementación de la estrategia de doble predicción en el backend.
 - Desarrollo del pipeline de preprocesamiento (Haar Cascade, CLAHE, recorte inteligente).
 - Configuración del Dockerfile para compatibilidad con Mac M3 (Apple Silicon).
 - Preparación del despliegue en Google Cloud Run.
 - Documentación técnica y guía de despliegue.
+
+### Isamar Chávez Díaz
+
+- **Entrenamiento, fase 1:** Transfer Learning con MobileNetV2 y backbone congelado (10 epochs), con 97.15 % de precisión en validación.
+- **Preparación de los datasets:** integración de tres datasets públicos de Kaggle (54,892 imágenes) en 4 clases unificadas.
+- **Curación y preprocesamiento de datos:** verificación MD5 (8 imágenes corruptas eliminadas), mejora de contraste con CLAHE en espacio LAB, redimensionado a 224×224, normalización y división estratificada 70/15/15.
+- **Entrenamiento del modelo** (en conjunto): participación en el entrenamiento de MobileNetV2 con Transfer Learning y Fine-Tuning.
+- **Interfaz web** (en conjunto): participación en el desarrollo del frontend con cámara, alertas visuales y barras de probabilidad.
+- **Pruebas del sistema:** validación de punta a punta de la cámara, la API y la alerta visual.
+
+### Katia Paola Victoria Escalera
+
+- **Entrenamiento, fase 2:** Fine-Tuning descongelando las últimas 30 capas con learning rate de 1e-5 (15 epochs), con 99.08 % de precisión en validación.
+- **Evaluación del modelo:** medición sobre el conjunto de test, con una precisión final de 99.02 %.
+- **Interfaz web:** desarrollo del frontend en HTML5, JavaScript y Canvas API, con acceso a la cámara web y captura automática de frames cada 800 ms.
+- **Preparación de los datasets** (en conjunto): integración de tres datasets públicos de Kaggle (54,892 imágenes) en 4 clases unificadas.
+- **Curación y preprocesamiento de datos** (en conjunto): verificación MD5, mejora de contraste con CLAHE, redimensionado a 224×224, normalización y división estratificada 70/15/15.
+- **Pruebas del sistema** (en conjunto): validación de punta a punta de la cámara, la API y la alerta visual.
 
 ---
 
@@ -309,7 +328,7 @@ MIT - ver [LICENSE](LICENSE).
 
 ---
 
-**Autor:** Angel de Jesús Canela Figueroa
+**Autores:** Angel de Jesús Canela Figueroa, Isamar Chávez Díaz y Katia Paola Victoria Escalera
 **Institución:** Instituto Tecnológico de Jiquilpan (TecNM)
 **Materia:** Visión por Computadora y Machine Learning
 **Programa:** Ingeniería en Sistemas Computacionales
