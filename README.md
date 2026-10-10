@@ -295,7 +295,7 @@ Proyecto desarrollado en equipo por tres integrantes.
 - Preparación del despliegue en Google Cloud Run.
 - Documentación técnica y guía de despliegue.
 
-### Isamar Chávez Díaz
+**Isamar Chávez Díaz**
 
 - **Entrenamiento, fase 1:** Transfer Learning con MobileNetV2 y backbone congelado (10 epochs), con 97.15 % de precisión en validación.
 - **Preparación de los datasets:** integración de tres datasets públicos de Kaggle (54,892 imágenes) en 4 clases unificadas.
@@ -304,7 +304,7 @@ Proyecto desarrollado en equipo por tres integrantes.
 - **Interfaz web** (en conjunto): participación en el desarrollo del frontend con cámara, alertas visuales y barras de probabilidad.
 - **Pruebas del sistema:** validación de punta a punta de la cámara, la API y la alerta visual.
 
-### Katia Paola Victoria Escalera
+**Katia Paola Victoria Escalera**
 
 - **Entrenamiento, fase 2:** Fine-Tuning descongelando las últimas 30 capas con learning rate de 1e-5 (15 epochs), con 99.08 % de precisión en validación.
 - **Evaluación del modelo:** medición sobre el conjunto de test, con una precisión final de 99.02 %.
@@ -328,7 +328,7 @@ MIT - ver [LICENSE](LICENSE).
 
 ---
 
-**Autores:** Angel de Jesús Canela Figueroa, Isamar Chávez Díaz y Katia Paola Victoria Escalera
-**Institución:** Instituto Tecnológico de Jiquilpan (TecNM)
-**Materia:** Visión por Computadora y Machine Learning
-**Programa:** Ingeniería en Sistemas Computacionales
+- **Autores:** Angel de Jesús Canela Figueroa, Isamar Chávez Díaz y Katia Paola Victoria Escalera
+- **Institución:** Instituto Tecnológico de Jiquilpan (TecNM)
+- **Materia:** Visión por Computadora y Machine Learning
+- **Programa:** Ingeniería en Sistemas Computacionales
