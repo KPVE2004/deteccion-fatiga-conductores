@@ -609,7 +609,7 @@ MIT — ver [LICENSE](LICENSE).
 
 **Katia Paola Victoria Escalera**
 
-[GitHub](https://github.com/KPVE2004) · [LinkedIn](https://www.linkedin.com/in/katia-victoria) · [Email](mailto:kp_victoria08@hotmail.com)
+[Portfolio](https://katia-portfolio-six.vercel.app/) · [GitHub](https://github.com/KPVE2004) · [LinkedIn](https://www.linkedin.com/in/katia-victoria) · [Email](mailto:kp_victoria08@hotmail.com)
 
 **Team / Equipo:** Ángel de Jesús Canela Figueroa · Isamar Chávez Díaz · Katia Paola Victoria Escalera  
 **Institution / Institución:** Instituto Tecnológico de Jiquilpan (TecNM)  
